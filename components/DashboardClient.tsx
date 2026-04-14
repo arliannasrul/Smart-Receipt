@@ -225,7 +225,7 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
                     <select 
                       value={filterMonth}
                       onChange={(e) => setFilterMonth(e.target.value)}
-                      className="bg-transparent text-[10px] font-bold uppercase tracking-widest px-1 py-1 outline-hidden cursor-pointer"
+                      className="bg-transparent text-[10px] font-bold uppercase tracking-widest px-1 py-1 outline-hidden cursor-pointer text-slate-800 dark:text-slate-100"
                     >
                       <option value="all">Semua Riwayat</option>
                       {availableMonths.map(m => (
@@ -242,7 +242,7 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
                     <select 
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value as "date" | "amount")}
-                      className="bg-transparent text-[10px] font-bold uppercase tracking-widest px-1 py-1 outline-hidden cursor-pointer"
+                      className="bg-transparent text-[10px] font-bold uppercase tracking-widest px-1 py-1 outline-hidden cursor-pointer text-slate-800 dark:text-slate-100"
                     >
                       <option value="date">Terbaru</option>
                       <option value="amount">Terbesar</option>
@@ -273,7 +273,7 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
                         <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
                            <button 
                              onClick={() => handleDownloadExcel("filter")}
-                             className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+                             className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
                            >
                              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
                              Bulan Terfilter
@@ -282,11 +282,12 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
                            <div className="border-t dark:border-slate-800 my-1"></div>
                            <div className="px-4 py-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Per Tahun</div>
                            {availableYears.map(year => (
-                             <button 
+                              <button 
                                key={year}
                                onClick={() => handleDownloadExcel(year)}
-                               className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+                               className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
                              >
+
                                <CalendarDays className="w-3.5 h-3.5 text-blue-500" />
                                Tahun {year}
                              </button>
@@ -295,7 +296,7 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
                            <div className="border-t dark:border-slate-800 my-1"></div>
                            <button 
                              onClick={() => handleDownloadExcel("all")}
-                             className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
+                             className="w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center gap-2 transition-colors"
                            >
                              <Database className="w-3.5 h-3.5 text-purple-500" />
                              Seluruh Riwayat
