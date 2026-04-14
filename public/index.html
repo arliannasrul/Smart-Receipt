@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrasi Google Drive API</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f4f7f6; color: #333; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .btn { display: inline-block; padding: 10px 15px; margin: 10px 0; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 16px; transition: background 0.3s; }
+        .btn-primary { background: #3498db; color: white; }
+        .btn-primary:hover { background: #2980b9; }
+        .btn-success { background: #2ecc71; color: white; }
+        .btn-success:hover { background: #27ae60; }
+        .section { margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; display: none; }
+        ul { list-style: none; padding: 0; }
+        li { background: #ecf0f1; margin: 5px 0; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        input[type="file"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Google Drive API - Demo</h1>
+        
+        <div id="login-section" style="text-align: center;">
+            <p>Silakan login dengan akun Google Anda untuk memberikan akses Google Drive.</p>
+            <a href="/auth" class="btn btn-primary">Login via Google</a>
+        </div>
+
+        <div id="dashboard-section" class="section">
+            <h2>Dashboard</h2>
+            <p>Anda berhasil login!</p>
+            
+            <div style="display: flex; justify-content: space-between; gap: 20px;">
+                <div style="flex: 1;">
+                    <h3>Daftar File</h3>
+                    <button id="load-files" class="btn btn-primary">Ambil Daftar File</button>
+                    <ul id="file-list"></ul>
+                </div>
+                
+                <div style="flex: 1;">
+                    <h3>Upload File Baru</h3>
+                    <form id="upload-form">
+                        <input type="file" id="file-input" required>
+                        <button type="submit" class="btn btn-success">Upload ke Drive</button>
+                    </form>
+                    <p id="upload-status" style="color: green; display: none;"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check Login Status
+        fetch('/api/status')
+            .then(res => res.json())
+            .then(data => {
+                if (data.loggedIn || window.location.search.includes('loggedin=true')) {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('dashboard-section').style.display = 'block';
+                }
+            })
+            .catch(err => console.error("Error checking status", err));
+
+        // Load Files
+        document.getElementById('load-files').addEventListener('click', async () => {
+            const listEl = document.getElementById('file-list');
+            listEl.innerHTML = '<li>Memuat...</li>';
+            try {
+                const res = await fetch('/api/drive/files');
+                const data = await res.json();
+                listEl.innerHTML = '';
+                if(data.files && data.files.length > 0) {
+                    data.files.forEach(file => {
+                        const li = document.createElement('li');
+                        li.textContent = `${file.name} (ID: ${file.id})`;
+                        listEl.appendChild(li);
+                    });
+                } else {
+                    listEl.innerHTML = '<li>Tidak ada file ditemukan.</li>';
+                }
+            } catch (error) {
+                listEl.innerHTML = '<li style="color:red;">Error memuat file.</li>';
+            }
+        });
+
+        // Upload File
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const statusEl = document.getElementById('upload-status');
+            statusEl.style.display = 'block';
+            statusEl.style.color = '#333';
+            statusEl.textContent = 'Mengupload...';
+
+            try {
+                const res = await fetch('/api/drive/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                statusEl.style.color = 'green';
+                statusEl.textContent = `Upload Berhasil! (ID: ${data.fileId})`;
+                fileInput.value = ''; // Reset
+                
+                // Refresh list
+                document.getElementById('load-files').click();
+            } catch (error) {
+                statusEl.style.color = 'red';
+                statusEl.textContent = 'Upload Gagal!';
+            }
+        });
+    </script>
+</body>
+</html>
