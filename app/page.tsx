@@ -21,9 +21,7 @@ export default async function Dashboard() {
         {/* Header */}
         <header className="relative z-10 max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-linear-to-br from-primary-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-               <span className="text-xl font-bold">S</span>
-             </div>
+             <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-primary-500/20" />
              <span className="text-xl font-bold tracking-tight">Smart Receipt Hub</span>
           </div>
           <a

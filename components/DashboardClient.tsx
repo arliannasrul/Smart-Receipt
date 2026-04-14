@@ -145,9 +145,7 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary-600 rounded-lg text-white">
-                <LayoutDashboard className="w-5 h-5" />
-              </div>
+              <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-xl shadow-sm" />
               <div>
                 <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Smart Receipt
