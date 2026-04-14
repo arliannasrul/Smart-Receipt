@@ -4,6 +4,7 @@ import { sessionOptions, SessionData } from "@/lib/session";
 import { getReceiptData } from "@/app/actions/receipts";
 import DashboardClient from "@/components/DashboardClient";
 import { Shield, Zap, BarChart3, Sparkles, CheckCircle, Database } from "lucide-react";
+import Link from "next/link";
 
 export default async function Dashboard() {
   const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
@@ -128,8 +129,12 @@ export default async function Dashboard() {
         </section>
 
         {/* Footer info */}
-        <footer className="relative z-10 max-w-7xl mx-auto px-6 py-12 text-center border-t border-white/5">
-           <p className="text-slate-600 text-xs font-medium uppercase tracking-[0.2em]">
+        <footer className="relative z-10 max-w-7xl mx-auto px-6 py-12 text-center border-t border-white/5 space-y-4">
+           <div className="flex justify-center gap-6 text-xs font-semibold text-slate-500">
+             <Link href="/privacy" className="hover:text-primary-400 transition-colors">Privacy Policy</Link>
+             <Link href="/terms" className="hover:text-primary-400 transition-colors">Terms of Service</Link>
+           </div>
+           <p className="text-slate-600 text-[10px] font-medium uppercase tracking-[0.2em]">
              Built with Precision by Next.js & Google Cloud
            </p>
         </footer>
