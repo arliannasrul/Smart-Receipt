@@ -311,73 +311,140 @@ export default function DashboardClient({ receipts, user }: DashboardClientProps
                   <p className="text-slate-400 text-sm">Belum ada struk yang diunggah.</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="border-b dark:border-slate-800 text-slate-400">
-                        <th className="px-6 py-4 text-left text-[10px] uppercase tracking-widest font-bold">Keperluan</th>
-                        <th className="px-6 py-4 text-left text-[10px] uppercase tracking-widest font-bold">Kategori</th>
-                        <th className="px-6 py-4 text-left text-[10px] uppercase tracking-widest font-bold">Tanggal</th>
-                        <th className="px-6 py-4 text-right text-[10px] uppercase tracking-widest font-bold">Nominal</th>
-                        <th className="px-6 py-4 text-right text-[10px] uppercase tracking-widest font-bold">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y dark:divide-slate-800">
-                      {sortedReceipts.map((receipt) => (
-                        <tr key={receipt.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all duration-200">
-                          <td className="px-6 py-4">
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{receipt.name}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{receipt.merchant || "Tanpa Nama Toko"}</p>
-                            {receipt.note && (
-                              <p className="text-[10px] text-slate-500 italic mt-1 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800 w-fit">
-                                "{receipt.note}"
-                              </p>
-                            )}
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50">
+                <>
+                  {/* Mobile Card View */}
+                  <div className="flex flex-col gap-3 md:hidden">
+                    {sortedReceipts.map((receipt) => (
+                      <div
+                        key={receipt.id}
+                        className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex flex-col gap-3 transition-all hover:shadow-md"
+                      >
+                        {/* Top Row: Name + Actions */}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-snug">{receipt.name}</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">{receipt.merchant || "Tanpa Nama Toko"}</p>
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <button
+                              onClick={() => setEditingReceipt(receipt)}
+                              className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-md transition-all"
+                              title="Edit Data"
+                              disabled={isDeleting}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(receipt.id, receipt.fileId)}
+                              className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all"
+                              title="Hapus Data"
+                              disabled={isDeleting}
+                            >
+                              {isDeleting ? <span className="animate-spin text-[10px]">...</span> : <Trash2 className="w-4 h-4" />}
+                            </button>
+                            <a
+                              href={`https://drive.google.com/file/d/${receipt.fileId}/view`}
+                              target="_blank"
+                              className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-all"
+                              title="Lihat di Drive"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Note */}
+                        {receipt.note && (
+                          <p className="text-[10px] text-slate-500 italic bg-white dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-700">
+                            &ldquo;{receipt.note}&rdquo;
+                          </p>
+                        )}
+
+                        {/* Bottom Row: Category, Date, Amount */}
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                               {receipt.category || "Lainnya"}
                             </span>
-                          </td>
-                          <td className="px-6 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">
-                            {receipt.date}
-                          </td>
-                          <td className="px-6 py-4 text-sm font-bold text-primary-600 text-right">
+                            <span className="text-[10px] font-medium text-slate-400">{receipt.date}</span>
+                          </div>
+                          <span className="text-sm font-bold text-primary-600">
                             Rp {receipt.amount.toLocaleString("id-ID")}
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex justify-end gap-1">
-                              <button
-                                onClick={() => setEditingReceipt(receipt)}
-                                className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-md transition-all"
-                                title="Edit Data"
-                                disabled={isDeleting}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(receipt.id, receipt.fileId)}
-                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all"
-                                title="Hapus Data"
-                                disabled={isDeleting}
-                              >
-                                {isDeleting ? <span className="animate-spin text-[10px]">...</span> : <Trash2 className="w-4 h-4" />}
-                              </button>
-                              <a 
-                                href={`https://drive.google.com/file/d/${receipt.fileId}/view`} 
-                                target="_blank"
-                                className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-all"
-                                title="Lihat di Drive"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
-                            </div>
-                          </td>
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Desktop Table View */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b dark:border-slate-800 text-slate-400">
+                          <th className="px-6 py-4 text-left text-[10px] uppercase tracking-widest font-bold">Keperluan</th>
+                          <th className="px-6 py-4 text-left text-[10px] uppercase tracking-widest font-bold">Kategori</th>
+                          <th className="px-6 py-4 text-left text-[10px] uppercase tracking-widest font-bold">Tanggal</th>
+                          <th className="px-6 py-4 text-right text-[10px] uppercase tracking-widest font-bold">Nominal</th>
+                          <th className="px-6 py-4 text-right text-[10px] uppercase tracking-widest font-bold">Aksi</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y dark:divide-slate-800">
+                        {sortedReceipts.map((receipt) => (
+                          <tr key={receipt.id} className="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all duration-200">
+                            <td className="px-6 py-4">
+                              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{receipt.name}</p>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">{receipt.merchant || "Tanpa Nama Toko"}</p>
+                              {receipt.note && (
+                                <p className="text-[10px] text-slate-500 italic mt-1 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800 w-fit">
+                                  &ldquo;{receipt.note}&rdquo;
+                                </p>
+                              )}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-700/50">
+                                {receipt.category || "Lainnya"}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-xs font-medium text-slate-500 whitespace-nowrap">
+                              {receipt.date}
+                            </td>
+                            <td className="px-6 py-4 text-sm font-bold text-primary-600 text-right">
+                              Rp {receipt.amount.toLocaleString("id-ID")}
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex justify-end gap-1">
+                                <button
+                                  onClick={() => setEditingReceipt(receipt)}
+                                  className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-md transition-all"
+                                  title="Edit Data"
+                                  disabled={isDeleting}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(receipt.id, receipt.fileId)}
+                                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all"
+                                  title="Hapus Data"
+                                  disabled={isDeleting}
+                                >
+                                  {isDeleting ? <span className="animate-spin text-[10px]">...</span> : <Trash2 className="w-4 h-4" />}
+                                </button>
+                                <a
+                                  href={`https://drive.google.com/file/d/${receipt.fileId}/view`}
+                                  target="_blank"
+                                  className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-md transition-all"
+                                  title="Lihat di Drive"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
               )}
             </div>
           </div>
