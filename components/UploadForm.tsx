@@ -1,19 +1,42 @@
 import { useState, useTransition } from "react";
 import { uploadReceipt, analyzeReceiptAction } from "@/app/actions/receipts";
-import { Sparkles, Image as ImageIcon, RefreshCw, X, Info } from "lucide-react";
+import { Sparkles, Image as ImageIcon, RefreshCw, X, Info, Gauge } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
+import { compressImage } from "@/lib/image-compression";
 
 export default function UploadForm() {
   const { showToast } = useToast();
   const [isPending, startTransition] = useTransition();
+  const [isCompressing, setIsCompressing] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [detectedData, setDetectedData] = useState({ name: "", merchant: "", amount: 0, date: "", category: "Lainnya", note: "" });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileInfo, setFileInfo] = useState<{ originalSize: number; compressedSize: number } | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const originalSize = file.size;
+      
+      setIsCompressing(true);
+      try {
+        const compressedFile = await compressImage(file);
+        setSelectedFile(compressedFile);
+        setFileInfo({ 
+          originalSize, 
+          compressedSize: compressedFile.size 
+        });
+        if (originalSize > compressedFile.size) {
+          showToast(`Gambar dikompres: ${(originalSize / 1024 / 1024).toFixed(1)}MB → ${(compressedFile.size / 1024 / 1024).toFixed(1)}MB`, "success");
+        }
+      } catch (error) {
+        console.error("Compression error:", error);
+        setSelectedFile(file); // Fallback ke original jika gagal
+        showToast("Gagal mengompres gambar, menggunakan file asli", "info");
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -205,17 +228,40 @@ export default function UploadForm() {
         {selectedFile && (
           <div className="flex flex-col gap-3 animate-in slide-in-from-top-2 duration-300 mt-4">
             <div className="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2 overflow-hidden">
-                <ImageIcon className="w-4 h-4 text-primary-500 shrink-0" />
-                <span className="text-xs truncate font-medium text-slate-600 dark:text-slate-300">{selectedFile.name}</span>
+              <div className="flex flex-col gap-0.5 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-primary-500 shrink-0" />
+                  <span className="text-xs truncate font-medium text-slate-600 dark:text-slate-300">{selectedFile.name}</span>
+                </div>
+                {fileInfo && (
+                  <div className="flex items-center gap-1.5 ml-6">
+                    <Gauge className="w-3 h-3 text-emerald-500" />
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
+                      {(fileInfo.compressedSize / 1024 / 1024).toFixed(2)} MB 
+                      {fileInfo.originalSize > fileInfo.compressedSize && (
+                        <span className="text-emerald-500 ml-1">
+                          (Saved {Math.round((1 - fileInfo.compressedSize / fileInfo.originalSize) * 100)}%)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                )}
               </div>
               <button 
-                onClick={() => setSelectedFile(null)} 
+                onClick={() => { setSelectedFile(null); setFileInfo(null); }} 
                 className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                disabled={isCompressing || isScanning || isPending}
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
+
+            {isCompressing && (
+              <div className="flex items-center justify-center gap-2 py-2 bg-primary-50 dark:bg-primary-900/10 rounded-xl border border-primary-100 dark:border-primary-900/20">
+                <RefreshCw className="w-3 h-3 text-primary-500 animate-spin" />
+                <span className="text-[10px] font-bold text-primary-600 uppercase tracking-widest">Mengompres Gambar...</span>
+              </div>
+            )}
             
             <button
               type="button"

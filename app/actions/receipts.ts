@@ -63,8 +63,10 @@ async function findOrCreateDatabaseFile(drive: any) {
 
 export async function analyzeReceiptAction(formData: FormData) {
   try {
+    console.log("[Server Action] analyzeReceiptAction started");
     const file = formData.get("file") as File;
     if (!file) throw new Error("No file selected");
+    console.log(`[Server Action] File: ${file.name}, Type: ${file.type}, Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64Image = buffer.toString("base64");
@@ -137,6 +139,7 @@ export async function getReceiptData(): Promise<Receipt[]> {
 
 export async function uploadReceipt(formData: FormData) {
   try {
+    console.log("[Server Action] uploadReceipt started");
     const file = formData.get("file") as File;
     const name = formData.get("name") as string;
     const merchant = formData.get("merchant") as string;
@@ -144,6 +147,11 @@ export async function uploadReceipt(formData: FormData) {
     const date = formData.get("date") as string;
     const category = formData.get("category") as string;
     const note = formData.get("note") as string;
+
+    console.log(`[Server Action] Uploading metadata for: ${name} dari ${merchant}`);
+    if (file) {
+      console.log(`[Server Action] File to upload: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+    }
 
     if (!file) throw new Error("No file selected");
 
